@@ -15,13 +15,31 @@
     {{/each}}
 </template>
 <template name="product">
-    <div class="well span3">
-        <ul id="{{_id}}" class="nav nav-list ">
-            <li class="thumbnail"><img  style="height:90px;width:auto"  src="/{{thumb}}"/></li>
-            <li><strong>{{name}}</strong></li>
-            <li>{{desc}}</li>
-            <li><strong>{{currency price}}</strong></li>
-            <input placeholder="Qty" class="input input-mini prodqty" value="0"/><a class="btn btn-success btn-mini addcart" href="#">Add</a>
-        </ul>
-    </div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th class="text-center">Price</th>
+                <th> </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="{{_id}}">
+                <td class="col-sm-7 col-md-5">
+                <div class="media">
+                    <a class="thumbnail pull-left" href="#"> <img class="media-object" src="/{{thumb}}" style="width: 72px; height: 72px;"> </a>
+                    <div class="media-body">
+                        <h4 class="media-heading"><a href="#">{{name}}</a></h4>
+                        <h5 class="media-heading"> by <a href="#">{{desc}}</a></h5>
+                        <span>Status: </span><span class="text-success"><strong>In Stock</strong></span>
+                        <input placeholder="Qty" class="input input-mini prodqty" value="0"/><a class="btn btn-success btn-mini addcart" href="#">Add</a>
+                    </div>
+                </div></td>
+                
+                <td class="col-sm-1 col-md-1 text-center"><strong>{{currency price}}</strong></td>
+                
+            </tr>
+            
+        </tbody>
+    </table>
 </template>
