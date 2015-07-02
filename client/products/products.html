@@ -3,6 +3,7 @@
         <h1>
             <span class="label-important label">{{category}}</span> <small>Products </small>
         </h1>
+        {{> search}}
     </div>
     {{#each productlist}}
         {{>product}}
@@ -42,4 +43,8 @@
             
         </tbody>
     </table>
+</template>
+<template name="search">
+        <input type="search" name="search">
+        <a class="btn btn-success btn-mini search" href="#">Search</a>    
 </template>
