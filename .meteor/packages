@@ -13,3 +13,7 @@ accounts-base
 accounts-ui
 iron:router
 reactive-var
+fortawesome:fontawesome
+meteorhacks:fast-render
+underscorestring:underscore.string
+erasaur:meteor-lodash

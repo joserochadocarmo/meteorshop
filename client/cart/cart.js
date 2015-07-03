@@ -8,6 +8,7 @@ Template.cart.helpers({
         var total = 0;
 
     cartItems.forEach(function(cartitem){
+        console.warn(cartitem);
         var item = _.extend(cartitem,{});
         var product = Products.findOne({_id:cartitem.product});
         cartitem.productname = product.name;

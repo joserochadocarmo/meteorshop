@@ -1,37 +1,14 @@
-this.productlist = new ReactiveVar();
+this.productlist = new ReactiveVar([]);
 
 Template.products.created = function () {
-    var html =[];
-    var yq = 'select div.div from data.html.cssselect where url="https://www.supplementcentral.com/index.php?filter_name=carnivor&route=product%2Fisearch&limit=10" and css=".product-list"';
-        $.YQL(yq, function(data) {
-            //console.debug(data);
-            //Products.insert({thumb:'blackberrysmoothie.jpeg',name:'Teste',desc:'Teste',price:2.50,catName:'Fruity'});
-            var post = data.query.results.results;
-            html.push({thumb:'applepie.jpeg',name:'Apple Pie',desc:'Decadent Apple Pie',price:2.50,catName:'Fruity'});
-            html.push({thumb:'blackberrysmoothie.jpeg',name:'Blackberry Smoothie',desc:'Luscious Blackbery Smoothie',price:2.50,catName:'Fruity'});
-            html.push({thumb:'mod1.jpg',name:'EGO Twist',desc:'Ego Twist Mod',price:23.50,catName:'Mods'});
-            productlist.set(html);
-        });
+    //getProdutosYQL("query");
 };
 
 Template.products.helpers({
     'productlist':function(){
         //console.log(1);
-        
-    //return Products.find({catName:Session.get('category')});
-    
-    return productlist.get();
-    },
-    'productlist1':function(){
-        var yq = 'select div.div from data.html.cssselect where url="https://www.supplementcentral.com/index.php?filter_name=carnivor&route=product%2Fisearch&limit=10" and css=".product-list"';
-
-        $.YQL(yq, function(data) {
-            //console.debug(data);
-            var post = data.query.results.results;
-        });
-    return [{thumb:'applepie.jpeg',name:'Apple Pie',desc:'Decadent Apple Pie',price:2.50,catName:'Fruity'},
-            {thumb:'blackberrysmoothie.jpeg',name:'Blackberry Smoothie',desc:'Luscious Blackbery Smoothie',price:2.50,catName:'Fruity'},
-            {thumb:'mod1.jpg',name:'EGO Twist',desc:'Ego Twist Mod',price:23.50,catName:'Mods'}];
+        //return Products.find({catName:Session.get('category')});        
+        return productlist.get();
     },
     'catnotselected':function(){
         return Session.equals('category',null);
@@ -52,19 +29,73 @@ Template.product.events({
 
 Template.search.events({
     'click .search':function(evt,tmpl){
-        console.log("sdfsd");
+        getProdutosYQL(tmpl.find('.search').value);
     }
 });
 
-// Yahoo Query Language Wrapper for jQuery
-$.YQL = function(query, callback) {
-    if (!query || !callback) {
-        throw new Error('$.YQL(): Parameters may be undefined');
-    }
 
-    // Whole Query for JSON output
-    var url = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent(query) + "&format=json&env=store://datatables.org/alltableswithkeys&callback=?" ;
-    //console.info(url);
-    $.getJSON(url, callback);
 
+function getProdutosYQL(query) {
+    if(!query) return;
+    productlist.set([]);
+    var yq = 'select div.div from data.html.cssselect where url="https://www.supplementcentral.com/index.php?filter_name=' + encodeURIComponent(query) + '&route=product%2Fisearch&limit=10" and css=".product-list"';
+    $.YQL(yq, function(data) {
+        var results = data.query.results.results;            
+        var html =[];
+        for(index in results){
+            //console.log(results[index].div);
+            var produtoName = results[index].div.div.h2.a.content;
+            var priceOld=0,priceNew=0;
+            for(p in results[index].div.div.div){
+              //console.log(results[index].div.div.div);
+              if(results[index].div.div.div[p].class=="price"){                  
+                  try {
+                      priceOld = results[index].div.div.div[p].span[0].content;
+                      priceNew = results[index].div.div.div[p].span[1].content;
+                  }
+                  catch(err) {
+                    console.trace("Erro:" +err);
+                  }
+                }
+            }
+            html.push({thumb:'applepie.jpeg',name:produtoName,desc:"Supplement Central",price:s.trim(priceOld.trim(),"$"),priceNew:s.trim(priceNew.trim(),"$"), catName:'Fruity'});
+        }
+        html.push.apply(html,productlist.get());
+        html=_(html).sortBy(function(obj){return obj.name.toLowerCase()})
+        //html=_.filter(html,function(obj){if(s.contains(obj.name.toLowerCase(),"now")) return true;})
+        //html.reverse()
+        productlist.set(html);
+    });
+
+    yq = 'select div.ul.li from data.html.cssselect where url="http://www.samedaysupplements.com/catalogsearch/result/?cat=0&q=' + encodeURIComponent(query) + '" and css=".category-products"';
+    $.YQL(yq, function(data) {
+        var results = data.query.results;
+        console.warn(results);
+        var html =[];
+        for(index in results){
+            for(j in results[index]){
+                var produtoName = results[index][j].div.ul.li.h2.a.content;
+                var priceOld=0,priceNew=0;    
+                for(p in results[index][j].div.ul.li.div){
+                    if(results[index][j].div.ul.li.div[p].class=="price-box"){                  
+                      //console.log(results[index][j].div.ul.li.div[p]);
+                      try {
+                        priceOld = results[index][j].div.ul.li.div[p].p[0].span[1].content;
+                        priceNew = results[index][j].div.ul.li.div[p].p[1].span[1].content;
+                      }
+                      catch(err) {
+                        console.trace("Erro:" +err);    
+                      }
+                    }
+                }
+            }
+            html.push({thumb:'applepie.jpeg',name:produtoName,desc:"Sameday Supplements",price:s.trim(priceOld.trim(),"$"),priceNew:s.trim(priceNew.trim(),"$"), catName:'Fruity'});
+        }
+        html.push.apply(html,productlist.get());
+        html=_(html).sortBy(function(obj){return obj.name.toLowerCase()})
+        //html=_.filter(html,function(obj){if(s.contains(obj.name.toLowerCase(),"now")) return true;})
+        //html.reverse()
+        productlist.set(html);
+    });
 };
+
